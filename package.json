@@ -1,6 +1,6 @@
 {
   "name": "secrets",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Configuration encryption/decryption",
   "main": "index.js",
   "scripts": {
