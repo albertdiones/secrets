@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+hachimport * as fs from 'fs';
 import * as crypto from 'crypto';
 
 // Define a type for the decryption options
@@ -19,16 +19,17 @@ function normalizeKey(secretKey: string): Buffer {
     return Buffer.alloc(32, secretKey, 'utf8');
 }
 
-// Function to decrypt a value
-function decrypt(text: string, secretKey: string): string {
-    const algorithm = 'aes-256-cbc';
-    const iv = Buffer.alloc(16, 0); // Initialization vector
 
-    const key = normalizeKey(secretKey);
-    const decipher = crypto.createDecipheriv(algorithm, key, iv);
-    let decrypted = decipher.update(text, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+// Function to decrypt a value using ChaCha20
+export function decrypt(text: string, secretKey: string): string {
+  const algorithm = 'chacha20';
+  const nonce = Buffer.alloc(12, 0); // 12-byte nonce for ChaCha20
+
+  const key = normalizeKey(secretKey);
+  const decipher = crypto.createDecipheriv(algorithm, key, nonce);
+  let decrypted = decipher.update(text, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
 }
   
 
@@ -49,13 +50,13 @@ export default async function loadSecrets(
 }
 
 
-// Function to encrypt a value
+// Function to encrypt a value using ChaCha20
 export function encrypt(text: string, secretKey: string): string {
-    const algorithm = 'aes-256-cbc';
-    const iv = Buffer.alloc(16, 0); // Initialization vector
-
+    const algorithm = 'chacha20';
+    const nonce = Buffer.alloc(12, 0); // 12-byte nonce for ChaCha20
+  
     const key = normalizeKey(secretKey);
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    const cipher = crypto.createCipheriv(algorithm, key, nonce);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
