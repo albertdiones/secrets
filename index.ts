@@ -8,16 +8,21 @@ type DecryptionOptions = {
 
 type KeyPairValue = { [key: string]: string };
 
+// Function to derive a key from a secret
+function deriveKey(secretKey: string): Buffer {
+return crypto.createHash('sha256').update(secretKey).digest(); // Generate a 32-byte key
+}
+
 // Function to decrypt a value
 function decrypt(text: string, secretKey: string): string {
-  const algorithm = 'aes-256-cbc';
-  const iv = Buffer.alloc(16, 0); // Initialization vector
+    const algorithm = 'aes-256-cbc';
+    const iv = Buffer.alloc(16, 0); // Initialization vector
 
-  const key = crypto.scryptSync(secretKey, 'salt', 32); // Generate a 32-byte key
-  const decipher = crypto.createDecipheriv(algorithm, key, iv);
-  let decrypted = decipher.update(text, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+    const key = deriveKey(secretKey);
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
+    let decrypted = decipher.update(text, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
 }
 
 // Function to load secrets from a file and decrypt them
@@ -41,11 +46,11 @@ export default async function loadSecrets(
 export function encrypt(text: string, secretKey: string): string {
     const algorithm = 'aes-256-cbc';
     const iv = Buffer.alloc(16, 0); // Initialization vector
-  
-    const key = crypto.scryptSync(secretKey, 'salt', 32); // Generate a 32-byte key
+
+    const key = deriveKey(secretKey);
     const cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
-  }
+}
   
