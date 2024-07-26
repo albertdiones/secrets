@@ -7,10 +7,16 @@ type DecryptionOptions = {
 };
 
 type KeyPairValue = { [key: string]: string };
+// Function to normalize the key to 32 bytes
+function normalizeKey(secretKey: string): Buffer {
+    // If the key is shorter than 32 bytes, pad it with zeroes
+    // If the key is longer than 32 bytes, truncate it
 
-// Function to derive a key from a secret
-function deriveKey(secretKey: string): Buffer {
-return crypto.createHash('sha256').update(secretKey).digest(); // Generate a 32-byte key
+    if (secretKey.length !== 32) {
+        throw `secret key should be exactly 32 characters, got: ${secretKey.length} characters`
+    }
+
+    return Buffer.alloc(32, secretKey, 'utf8');
 }
 
 // Function to decrypt a value
@@ -18,12 +24,13 @@ function decrypt(text: string, secretKey: string): string {
     const algorithm = 'aes-256-cbc';
     const iv = Buffer.alloc(16, 0); // Initialization vector
 
-    const key = deriveKey(secretKey);
+    const key = normalizeKey(secretKey);
     const decipher = crypto.createDecipheriv(algorithm, key, iv);
     let decrypted = decipher.update(text, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
 }
+  
 
 // Function to load secrets from a file and decrypt them
 export default async function loadSecrets(
@@ -47,7 +54,7 @@ export function encrypt(text: string, secretKey: string): string {
     const algorithm = 'aes-256-cbc';
     const iv = Buffer.alloc(16, 0); // Initialization vector
 
-    const key = deriveKey(secretKey);
+    const key = normalizeKey(secretKey);
     const cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');

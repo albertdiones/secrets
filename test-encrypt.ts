@@ -1,4 +1,5 @@
 import loadSecrets, { encrypt } from ".";
+import { secretKey } from "./test";
 
 
-console.log(await encrypt('FooBar', 'CarrotsRabbit==='));
+console.log(await encrypt('FooBar', secretKey));
