@@ -1,7 +1,5 @@
 import * as fs from 'fs';
 import * as crypto from 'crypto';
-import cacheViaMongo from 'cache-via-mongo';
-import { CacheItem } from 'cache-via-mongo/schema';
 
 // Define a type for the decryption options
 type DecryptionOptions = {
@@ -9,13 +7,6 @@ type DecryptionOptions = {
 };
 
 type KeyPairValue = { [key: string]: string };
-
-
-type CacheInterface = {
-  getItem(key: string): any;
-  setItem(key: string,value: any,expiration:number): void;
-}
-
 // Function to normalize the key to 32 bytes
 function normalizeKey(secretKey: string): Buffer {
     // If the key is shorter than 32 bytes, pad it with zeroes
@@ -39,35 +30,22 @@ function decrypt(text: string, secretKey: string): string {
     decrypted += decipher.final('utf8');
     return decrypted;
 }
-
-const cache: CacheInterface = cacheViaMongo;
+  
 
 // Function to load secrets from a file and decrypt them
 export default async function loadSecrets(
   filePath: string,
   options: DecryptionOptions
 ): Promise<KeyPairValue> {
-  return cache.getItem(filePath).then(
-    (cached: CacheItem | null) => {
-      if (cached !== null) {
-        console.log('cache hit!');
-        return cached.value;
-      }
-      console.log('cache not hit');
-      
-      const fileContent = fs.readFileSync(filePath, 'utf8');
-      const secrets: KeyPairValue = JSON.parse(fileContent);
-    
-      const decryptedSecrets: KeyPairValue = {};
-      for (const [key, value] of Object.entries(secrets)) {
-        decryptedSecrets[key] = decrypt(value, options.key);
-      }
-    
-      cache.setItem(filePath, decryptedSecrets,20);
-    
-      return decryptedSecrets;
-    }
-  );
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+  const secrets: KeyPairValue = JSON.parse(fileContent);
+
+  const decryptedSecrets: KeyPairValue = {};
+  for (const [key, value] of Object.entries(secrets)) {
+    decryptedSecrets[key] = decrypt(value, options.key);
+  }
+
+  return decryptedSecrets;
 }
 
 
