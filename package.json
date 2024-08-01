@@ -1,10 +1,10 @@
 {
   "name": "secrets",
   "version": "0.0.1",
-  "description": "Configuration encryption/decryption",
+  "description": "Configuration encryption/decryption for added layer of configuration protection",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest tests/"
   },
   "keywords": [
     "config",
@@ -15,6 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.14.12",
+    "jest": "^29.7.0",
     "timer-profiler": "^0.0.7"
   },
   "dependencies": {
