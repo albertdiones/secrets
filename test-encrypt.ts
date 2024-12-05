@@ -2,4 +2,4 @@ import loadSecrets, { encrypt } from ".";
 import { secretKey } from "./test";
 
 
-console.log(encrypt('FooBar', secretKey));
+console.log(await encrypt('FooBar', secretKey));

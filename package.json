@@ -4,8 +4,7 @@
   "description": "Configuration encryption/decryption for added layer of configuration protection",
   "main": "index.ts",
   "scripts": {
-    "loop-test": "while true; do bun test --timeout=20000; sleep 5; done",
-    "loop-validate": "while true; do bun test --timeout=20000; tsc --noEmit --pretty --skipLibCheck ./index.ts; sleep 5; done"
+    "test": "jest tests/"
   },
   "keywords": [
     "config",
