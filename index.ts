@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import cacheFromLib from 'cache-via-redis';
+import { Writable } from 'stream';
+import * as readline from 'readline';
 
 // Define a type for the decryption options
 type DecryptionOptions = {
@@ -82,3 +84,40 @@ export function encrypt(text: string, secretKey: string): string {
     return encrypted;
 }
   
+export function askForPassword(question: string) {
+  let muted = true;
+  // cr: wERWINd
+  const passwordPromptStdout = new Writable(
+    {
+      write: function (chunk, encoding, callback) {
+          if (muted === true) {
+              return;
+          }
+          process.stdout.write(chunk,encoding);
+          callback();
+      }
+    }
+  );
+
+
+  // Create an interface for reading input from stdin
+  const userInterface = readline.createInterface({
+    input: process.stdin,
+    output: passwordPromptStdout,
+    terminal: true,
+  });
+
+  return new Promise(
+    (resolve, reject) => {
+      muted = false;
+      userInterface.question(
+        question,
+        (password) => {
+            muted = false;
+            resolve(password);
+        }
+      );
+      muted = true;
+    }
+  )
+}
